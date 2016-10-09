@@ -1,0 +1,36 @@
+<div class="track-container">
+    <div class="track-controls">
+        <span class="track-header"><h3>{{title}}</h3><span class="track-color-button"></span></span>
+        <div class="volume-control-container">
+            <input type="range" value="80" class="volume-slider">
+            <span>
+					<h4 class="volume-label">{{volume-label}}:</h4>
+					<span class="volume-value">
+						<input type="text" class="volume-input" value="80">
+						<span>%</span>
+					</span>
+				</span>
+        </div>
+        <div class="panning-container">
+            <input type="range" value="80" class="panning-slider">
+            <span>
+					<h4 class="panning-label">{{panning-label}}:</h4>
+					<span class="panning-value">
+						<input type="text" class="panning-input" value="80">
+						<span>%</span>
+					</span>
+				</span>
+        </div>
+        <div class="buttons-container">
+            <button class="solo-button">S</button>
+            <button class="mute-button">M</button>
+            <button class="record-button">R</button>
+        </div>
+        <div class="hide-button-container">
+            <button class="hide-button">(strzałka w górę)</button>
+        </div>
+    </div>
+    <div class="track-content">
+        <canvas class="waveform-canvas"></canvas>
+    </div>
+</div>

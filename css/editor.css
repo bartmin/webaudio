@@ -1,0 +1,146 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.tools-menu-container {
+    width: 100%;
+    height: 50px;
+}
+
+.player-controls, .other-controls {
+    display: inline-block;
+    margin: 0 20px;
+}
+
+.tools-menu-container .player-controls button, .tools-menu-container .other-controls button {
+    padding: 4px;
+}
+
+.tools-menu-container .player-controls button img, .tools-menu-container .other-controls button img {
+    width: 20px;
+    height: 20px;
+}
+
+.track-container {
+    width: 80%;
+    height: 200px;
+    margin: 5px 0;
+}
+
+.track-header {
+    margin-bottom: 5px;
+    background-color: lavender;
+}
+.track-controls {
+    position: relative;
+    height: 100%;
+    width: 200px;
+    float: left;
+    background-color: rgba(120,130,150,0.3);
+}
+
+.track-controls h3 {
+    font-size: 13pt;
+    display: inline-block;
+    line-height: 20px;
+    vertical-align: middle;
+    margin-top: 5px;
+}
+
+.track-controls .track-header {
+    display: block;
+    height: 25px;
+    width: 100%;
+    text-align: center;
+}
+
+.track-controls .track-header .track-color-button {
+    width: 20px;
+    height: 20px;
+    background-color: yellow;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+.volume-control-container {
+    text-align: center;
+}
+
+.volume-label {
+    display: inline-block;
+}
+
+.volume-slider {
+    display: inline-block;
+    width: 90%;
+}
+
+.volume-input {
+    width: 30px;
+    text-align: center;
+}
+
+.panning-container {
+    text-align: center;
+}
+
+.panning-label {
+    display: inline-block;
+}
+
+.panning-slider {
+    display: inline-block;
+    width: 90%;
+}
+
+.panning-input {
+    width: 30px;
+    text-align: center;
+}
+
+.buttons-container {
+    padding: 10px;
+}
+
+.buttons-container button {
+    width: 40px;
+    height: 25px;
+}
+
+.hide-button-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    background-color: blue;
+}
+
+.track-content {
+    overflow: hidden;
+    height: 100%;
+    background-color: bisque;
+}
+
+canvas.waveform-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+button.disabled {
+    color: black;
+    border: 1px solid black;
+    font-weight: normal;
+}
+
+button.enabled {
+    color: green;
+    border: 3px solid green;
+    font-weight: bold;
+}
+
+input[type="file"].track-loader {
+    display: none;
+}
