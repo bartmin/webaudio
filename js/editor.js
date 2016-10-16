@@ -1,3 +1,21 @@
+window.APP = {
+    context : new AudioContext() || new WebKitAudioContext(),
+
+    init: function() {
+        ReactDOM.render(
+            <MainView />,
+            document.body
+        );
+    }
+};
+
+var TrackData = {
+    name: null,
+    data: null
+};
+
+
+
 var TrackVolumeSlider = React.createClass({
     render: function() {
         return (
@@ -73,11 +91,9 @@ var Track = React.createClass({
         return {
             volume: 50,
             panning: 50,
-            audio: null,
             solo: false,
             mute: false,
             record: false,
-            color: 'yellow',
             collapsed: false
         };
     },
@@ -122,14 +138,18 @@ var Track = React.createClass({
                     </div>
                 </div>
                 <div className="track-content">
-                    <TrackWaveform data={this.state.audio} />
+                    <TrackWaveform type={this.state.type} data={this.state.audio} />
                 </div>
             </div>
         );
     }
-})
+});
 
 var TrackWaveform = React.createClass({
+    getInitialState: function() {
+        return {type: "audio", data: null};
+    },
+
     render: function() {
         return(
             <canvas className="waveform-canvas">
@@ -170,13 +190,28 @@ var OtherControls = React.createClass({
     loadFile: function(e) {
         this.toggleTrackLoader();
         var file = e.target.files[0]; // we assume there is only one file
-        console.log(file);
+
+        var data; // we will fill this with data
+        var fr = new FileReader(); // lets initialize FileReader()
+        var tmp_context = this; // it's important
+
+
+        fr.onload = function(e) {           // and after reading file...
+            data = e.target.result;       // ... we retrieve data...
+            tmp_context.props.loadFile(data);   // ... and pass them to parent's function
+        };
+
+        fr.readAsArrayBuffer(file);
+    },
+
+    showAddTrackModal: function() {
+        this.toggleTrackLoader();
     },
 
     render: function() {
         return (
             <div className="other-controls">
-                <button className="add-button"><img src="./img/icons/plus.png" onClick={this.toggleTrackLoader} /></button>
+                <button className="add-button"><img src="./img/icons/plus.png" onClick={this.showAddTrackModal} /></button>
                 <input type="file" accept="audio/*" className="track-loader" id="track-loader" onChange={this.loadFile} />
             </div>
         );
@@ -184,27 +219,48 @@ var OtherControls = React.createClass({
 });
 
 var ToolsMenu = React.createClass({
+    handleLoadFile: function(data) {
+        this.props.onFileLoad(data);
+    },
+
     render: function() {
         return (
             <div className="tools-menu-container">
                 <PlayerControls/>
-                <OtherControls/>
+                <OtherControls loadFile={this.handleLoadFile} />
             </div>
         );
     }
 });
 
-app = {
-    init: function() {
-        ReactDOM.render(
-            <ToolsMenu />,
-            document.getElementById('menu')
-        );
-        ReactDOM.render(
-            <Track />,
-            document.getElementById('tracks')
+
+
+var MainView = React.createClass({
+    getInitialState: function() {
+        return ({});
+    },
+
+    addNewTrack: function(file_content) {
+        try {
+            var audio_buffer = APP.context.decodeAudioData(file_content);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    },
+
+    render: function() {
+        return (
+            <div id="container">
+                <div id="menu">
+                    <ToolsMenu onFileLoad={this.addNewTrack} />
+                </div>
+                <div id="tracks">
+                </div>
+            </div>
         );
     }
-};
+});
 
-app.init();
+
+APP.init();
