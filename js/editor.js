@@ -1,5 +1,5 @@
 window.APP = {
-    context : new AudioContext() || new WebKitAudioContext(),
+    CONTEXT : new AudioContext() || new WebKitAudioContext(),
 
     init: function() {
         ReactDOM.render(
@@ -8,12 +8,6 @@ window.APP = {
         );
     }
 };
-
-var TrackData = {
-    name: null,
-    data: null
-};
-
 
 
 var TrackVolumeSlider = React.createClass({
@@ -94,7 +88,7 @@ var Track = React.createClass({
             solo: false,
             mute: false,
             record: false,
-            collapsed: false
+            collapsed: false,
         };
     },
 
@@ -126,7 +120,7 @@ var Track = React.createClass({
         return (
             <div className="track-container">
                 <div className="track-controls">
-                    <span className="track-header"><h3>Ścieżka 1</h3><span className="track-color-button"></span></span>
+                    <span className="track-header"><h3>{this.props.data.name}</h3><span className="track-color-button"></span></span>
                     <TrackVolumeSlider volume={this.state.volume} volumeLabel="Głośność"
                                        changeVolume={this.changeVolume} />
                     <TrackPanningSlider panning={this.state.panning} panningLabel="Panorama"
@@ -138,21 +132,50 @@ var Track = React.createClass({
                     </div>
                 </div>
                 <div className="track-content">
-                    <TrackWaveform type={this.state.type} data={this.state.audio} />
+                    <TrackWaveform type={this.props.type} clips={this.props.data.buffer} />
                 </div>
             </div>
         );
     }
 });
 
+// clips: array of AudioBuffer objects with offset added
 var TrackWaveform = React.createClass({
     getInitialState: function() {
-        return {type: "audio", data: null};
+        return {type: "audio", clips: this.props.clips};
+    },
+
+    componentDidMount: function() {
+        this.drawWaveform()
+    },
+
+    drawWaveform: function() {
+        var ctx = this.refs.waveform.getContext("2d");
+        console.log(this.state.clips);
+        var clip = this.state.clips[0];
+
+        var leftChannel = clip.getChannelData(0);
+        ctx.save();
+        ctx.fillStyle = '#222' ;
+        ctx.fillRect(0,0,1000,200 ); //ctx.fillRect(0,0,canvasWidth,canvasHeight )
+        ctx.strokeStyle = '#121';
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.translate(0,200 / 2);
+        for (var i=0; i<  leftChannel.length; i++) {
+            // on which line do we get ?
+            var x = Math.floor ( 1000 * i / leftChannel.length ) ;
+            var y = leftChannel[i] * 200 / 2 ;
+            ctx.beginPath();
+            ctx.moveTo( x  , 0 );
+            ctx.lineTo( x+1, y );
+            ctx.stroke();
+        }
+        ctx.restore();
     },
 
     render: function() {
         return(
-            <canvas className="waveform-canvas">
+            <canvas className="waveform-canvas" width="1000" height="200" ref="waveform">
 
             </canvas>
         );
@@ -237,25 +260,40 @@ var ToolsMenu = React.createClass({
 
 var MainView = React.createClass({
     getInitialState: function() {
-        return ({});
+        return ({tracks : []});
     },
 
-    addNewTrack: function(file_content) {
+    addNewTrack: function(buffer) {
+        var track_count = this.state.tracks.length + 1;
+        var new_track_name = "Ścieżka " + track_count;
+        buffer.offset = 0;
+
+        var new_tracklist = this.state.tracks;
+        new_tracklist.push({
+            name: new_track_name,
+            buffer: [buffer]
+        });
+        this.setState({tracks: new_tracklist});
+    },
+
+    handleFileLoad: function(file_content) {
         try {
-            var audio_buffer = APP.context.decodeAudioData(file_content);
+            APP.CONTEXT.decodeAudioData(file_content, this.addNewTrack);
         }
         catch (e) {
             console.log(e);
         }
     },
 
-    render: function() {
-        return (
+    render: function() {return (
             <div id="container">
                 <div id="menu">
-                    <ToolsMenu onFileLoad={this.addNewTrack} />
+                    <ToolsMenu onFileLoad={this.handleFileLoad} />
                 </div>
                 <div id="tracks">
+                    {this.state.tracks.map((t) => (
+                        <Track type="audio" data={t} />
+                    ))}
                 </div>
             </div>
         );
