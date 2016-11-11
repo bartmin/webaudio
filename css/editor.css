@@ -29,6 +29,7 @@
 
 .track-container {
     width: 80%;
+    min-width: 1200px !important;
     height: 200px;
     margin: 5px 0;
 }

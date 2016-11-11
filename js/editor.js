@@ -1,5 +1,12 @@
 window.APP = {
     CONTEXT : new AudioContext() || new WebKitAudioContext(),
+    settings: {
+        ZOOM_LEVEL : 1,
+        LINES_PER_SCREEN: 2000
+    },
+
+    POSITION: 0.0,
+
 
     init: function() {
         ReactDOM.render(
@@ -14,16 +21,16 @@ var TrackVolumeSlider = React.createClass({
     render: function() {
         return (
             <div className="volume-control-container">
-                <input type="range" defaultValue={this.props.volume} onChange={this.props.changeVolume}
-                       className="volume-slider" min="0" max="100" step="1" />
                 <span>
-                        <h4 className="volume-label">{this.props.volumeLabel}:</h4>
-                        <span className="volume-value">
-                            <input type="text" className="volume-input" min="0" max="100" disabled
-                                   onChange={this.props.changeVolume} value={this.props.volume} />
-                            <span>%</span>
-                        </span>
+                    <h4 className="volume-label">{this.props.volumeLabel}:</h4>
+                    <span className="volume-value">
+                        <input type="text" className="volume-input" min="0" max="200" disabled
+                               onChange={this.props.changeVolume} value={this.props.volume} />
+                        <span>%</span>
                     </span>
+                </span>
+                <input type="range" defaultValue={this.props.volume} onChange={this.props.changeVolume}
+                       className="volume-slider" min="0" max="200" step="1" />
             </div>
         );
     }
@@ -33,8 +40,6 @@ var TrackPanningSlider = React.createClass({
     render: function() {
         return (
             <div className="panning-container">
-                <input type="range" defaultValue={this.props.panning} onChange={this.props.changePanning}
-                       className="panning-slider" min="0" max="100" />
 				<span>
 					<h4 className="panning-label">{this.props.panningLabel}:</h4>
 					<span className="panning-value">
@@ -43,6 +48,8 @@ var TrackPanningSlider = React.createClass({
 						<span>%</span>
 					</span>
 				</span>
+                <input type="range" defaultValue={this.props.panning} onChange={this.props.changePanning}
+                       className="panning-slider" min="0" max="100" />
             </div>
         );
     }
@@ -83,7 +90,7 @@ var TrackHeader = React.createClass({
 var Track = React.createClass({
     getInitialState: function () {
         return {
-            volume: 50,
+            volume: 100,
             panning: 50,
             solo: false,
             mute: false,
@@ -106,7 +113,7 @@ var Track = React.createClass({
 
     changeVolume: function(e) {
         var vol = e.target.value;
-        if (vol <= 100 && vol >= 0)
+        if (vol <= 200 && vol >= 0)
             this.setState({volume: vol});
     },
 
@@ -142,7 +149,7 @@ var Track = React.createClass({
 // clips: array of AudioBuffer objects with offset added
 var TrackWaveform = React.createClass({
     getInitialState: function() {
-        return {type: "audio", clips: this.props.clips};
+        return {clips: this.props.clips};
     },
 
     componentDidMount: function() {
@@ -151,25 +158,29 @@ var TrackWaveform = React.createClass({
 
     drawWaveform: function() {
         var ctx = this.refs.waveform.getContext("2d");
-        console.log(this.state.clips);
         var clip = this.state.clips[0];
-
         var leftChannel = clip.getChannelData(0);
+        var lines = APP.settings.LINES_PER_SCREEN;
+        var eachBlock = Math.floor(leftChannel.length / lines);
+        var lineGap = (1000/lines);
+
         ctx.save();
         ctx.fillStyle = '#222' ;
         ctx.fillRect(0,0,1000,200 ); //ctx.fillRect(0,0,canvasWidth,canvasHeight )
         ctx.strokeStyle = '#121';
         ctx.globalCompositeOperation = 'lighter';
         ctx.translate(0,200 / 2);
-        for (var i=0; i<  leftChannel.length; i++) {
-            // on which line do we get ?
-            var x = Math.floor ( 1000 * i / leftChannel.length ) ;
-            var y = leftChannel[i] * 200 / 2 ;
-            ctx.beginPath();
-            ctx.moveTo( x  , 0 );
-            ctx.lineTo( x+1, y );
-            ctx.stroke();
+        ctx.globalAlpha = 0.8 ;
+
+        for (var i=0; i<  lines; i++) {
+            var audioBuffKey = Math.floor(eachBlock * i);
+            var x = i*lineGap;
+            var y = leftChannel[audioBuffKey] * 200 / 2;
+            ctx.moveTo( x, y );
+            ctx.lineTo( x, (y*-1) );
         }
+
+        ctx.stroke();
         ctx.restore();
     },
 
@@ -225,6 +236,7 @@ var OtherControls = React.createClass({
         };
 
         fr.readAsArrayBuffer(file);
+        document.getElementById('track-loader').value = "";  // reset FILE input
     },
 
     showAddTrackModal: function() {
@@ -234,6 +246,8 @@ var OtherControls = React.createClass({
     render: function() {
         return (
             <div className="other-controls">
+                <button className="zoom-in-button" onClick={this.props.zoomIn}><img arc="./img/icons/" alt="++" /></button>
+                <button className="zoom-out-button" onClick={this.props.zoomOut}><img arc="./img/icons/" alt="--" /></button>
                 <button className="add-button"><img src="./img/icons/plus.png" onClick={this.showAddTrackModal} /></button>
                 <input type="file" accept="audio/*" className="track-loader" id="track-loader" onChange={this.loadFile} />
             </div>
@@ -250,7 +264,7 @@ var ToolsMenu = React.createClass({
         return (
             <div className="tools-menu-container">
                 <PlayerControls/>
-                <OtherControls loadFile={this.handleLoadFile} />
+                <OtherControls loadFile={this.handleLoadFile} zoomIn={this.props.zoomIn} zoomOut={this.props.zoomOut} />
             </div>
         );
     }
@@ -285,10 +299,23 @@ var MainView = React.createClass({
         }
     },
 
-    render: function() {return (
+    zoomIn: function() {
+        if (this.state.tracks.length !== 0) {
+            alert("Zoom in");
+        }
+    },
+
+    zoomOut: function() {
+        if (this.state.tracks.length !== 0) {
+            alert("Zoom out");
+        }
+    },
+
+    render: function() {
+        return (
             <div id="container">
                 <div id="menu">
-                    <ToolsMenu onFileLoad={this.handleFileLoad} />
+                    <ToolsMenu onFileLoad={this.handleFileLoad} zoomIn={this.zoomIn} zoomOut={this.zoomOut} />
                 </div>
                 <div id="tracks">
                     {this.state.tracks.map((t) => (
