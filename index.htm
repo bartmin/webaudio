@@ -4,29 +4,21 @@
 	<meta charset="UTF-8">
 	<title>WebAudio Editor</title>
 	<link rel="stylesheet" type="text/css" href="css/editor.css" />
-	<script src="js/react.min.js"></script>
-	<script src="js/react-dom.min.js"></script>
-	<script src="js/jquery.js"></script>
-	<script src="js/jquery-ui.min.js"></script>
-	<script src="js/browser.min.js"></script>
-	<script>
-		// defining variables in the global context
-		var TrackVolumeSlider, TrackPanningSlider, TrackButtonContainer, TrackHideButton,Track , TrackHeader, TrackWaveform, PlayerControls, OtherControls, ToolsMenu, MainView;
-	</script>
-	<script type="text/babel" src="js/views.js"></script>
 </head>
 <body>
 <script type="text/babel">
+	/*
 	// big letters for properties of APP
 	// small letters for objects containing propeteries and functions
 	window.APP = {
 		CONTEXT : new AudioContext() || new WebKitAudioContext(),
 		settings: {
-			ZOOM_LEVEL : 1,
-			LINES_PER_SCREEN: 2000
+			LINES_PER_SCREEN: 4000,
+			CANVAS_WIDTH: 1400,
+			CANVAS_HEIGHT: 200
 		},
 
-		POSITION: 0.0,
+		POSITION: 0.0, //
 
 		// gets an array with data?
 		playAudio: function(tracks) {
@@ -47,11 +39,14 @@
 					<MainView playAudio={this.playAudio} stopAudio={this.stopAudio()} pauseAudio={this.pauseAudio} />,
 					document.body
 			);
+
 		}
 	};
 
 
 	APP.init();
+	*/
 </script>
+<script src="bundle.js"></script>
 </body>
 </html>

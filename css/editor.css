@@ -28,10 +28,11 @@
 }
 
 .track-container {
-    width: 80%;
+    width: 100%;
     min-width: 1200px !important;
     height: 200px;
     margin: 5px 0;
+    background-color: black;
 }
 
 .track-header {
@@ -43,7 +44,7 @@
     height: 100%;
     width: 200px;
     float: left;
-    background-color: rgba(120,130,150,0.3);
+    background-color: rgba(255,255,255,0.7);
 }
 
 .track-controls h3 {
@@ -129,8 +130,8 @@
 }
 
 canvas.waveform-canvas {
-    //width: 100%;
-    //height: 100%;
+    width: 100%;
+    height: 200px;
 }
 
 button.disabled {
