@@ -1,39 +1,33 @@
-import React from 'react';
+import React from 'react'
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
 import ReactDOM from 'react-dom';
+
 import {MainView} from './js/views.jsx';
+import audioApp from './js/reducers';
+;
+
+let store = createStore(audioApp, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
 
 window.APP = {
-		CONTEXT : new AudioContext() || new WebKitAudioContext(),
-		settings: {
-			LINES_PER_SCREEN: 4000,
-			CANVAS_WIDTH: 1400,
-			CANVAS_HEIGHT: 200
-		},
+	CONTEXT : new AudioContext() || new WebKitAudioContext(),
+	settings: {
+		LINES_PER_SCREEN: 4000,
+		CANVAS_WIDTH: 1400,
+		CANVAS_HEIGHT: 200
+	},
 
-		POSITION: 0.0, //
+	init: function() {
+		ReactDOM.render(
+			<Provider store={store}>
+				<MainView />
+			</Provider>,
+			document.body
+		);
 
-		// gets an array with data?
-		playAudio: function(tracks) {
-			console.log(tracks);
-		},
-
-		pauseAudio: function() {
-
-		},
-
-		stopAudio: function() {
-			this.POSITION = 0.0;
-		},
+	}
+};
 
 
-		init: function() {
-			ReactDOM.render(
-					<MainView playAudio={this.playAudio} stopAudio={this.stopAudio()} pauseAudio={this.pauseAudio} />,
-					document.body
-			);
-
-		}
-	};
-
-
-	APP.init();
+APP.init();
